@@ -28,6 +28,7 @@ type RecordItem = {
   latitude: number;
   longitude: number;
   identity_confidence: "exact" | "partial";
+  location_source_url: string | null;
   inspection_date: string;
   authority: string;
   finding_summary: string;
@@ -148,7 +149,17 @@ function renderRecords(records: RecordItem[]): void {
     badge.textContent = record.evidence_grade === "official" ? "Official source" : "Reported by news source";
     badge.dataset.grade = record.evidence_grade;
     card.querySelector<HTMLElement>(".record-name")!.textContent = record.branch ? `${record.name}, ${record.branch}` : record.name;
-    card.querySelector<HTMLElement>(".record-location")!.textContent = [record.address, record.locality].filter(Boolean).join(" · ") || "Location named in source";
+    const location = card.querySelector<HTMLElement>(".record-location")!;
+    location.textContent = [record.address, record.locality].filter(Boolean).join(" · ") || "Location named in source";
+    if (record.location_source_url) {
+      location.append(document.createTextNode(" · "));
+      const locationSource = document.createElement("a");
+      locationSource.href = record.location_source_url;
+      locationSource.target = "_blank";
+      locationSource.rel = "noopener noreferrer";
+      locationSource.textContent = "Map location source";
+      location.append(locationSource);
+    }
     card.querySelector<HTMLElement>(".record-finding")!.textContent = record.finding_summary;
     card.querySelector<HTMLElement>(".record-action")!.textContent = record.action_summary;
     card.querySelector<HTMLElement>(".record-status")!.textContent = record.current_status;

@@ -8,6 +8,7 @@ type EventRow = {
   latitude: number;
   longitude: number;
   identity_confidence: "exact" | "partial";
+  location_source_url: string | null;
   inspection_date: string;
   authority: string;
   finding_summary: string;
@@ -56,6 +57,7 @@ async function listInspections(env: Env): Promise<Response> {
       x.latitude,
       x.longitude,
       x.identity_confidence,
+      x.location_source_url,
       e.inspection_date,
       e.authority,
       e.finding_summary,

@@ -86,6 +86,7 @@ h1 em { color: var(--green); font-family: "Newsreader", Georgia, serif; font-wei
 .evidence-badge[data-grade="official"] { background: var(--green-soft); border-color: #b8cfc2; color: var(--green); }
 .record-name { margin: .8rem 0 .25rem; font-size: clamp(1.35rem, 2vw, 1.75rem); letter-spacing: -.04em; }
 .record-location { margin: 0 0 1.5rem; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+.record-location a { color: var(--green); text-underline-offset: 3px; }
 dl { margin: 0; }
 dl div { display: grid; grid-template-columns: 115px 1fr; gap: 1rem; padding: .8rem 0; border-top: 1px solid #e6e2d8; }
 dt { color: var(--muted); font-family: "DM Mono", monospace; font-size: .55rem; line-height: 1.5; text-transform: uppercase; letter-spacing: .05em; }
