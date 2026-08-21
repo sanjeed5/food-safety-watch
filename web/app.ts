@@ -63,9 +63,7 @@ const state = {
 const elements = {
   search: document.querySelector<HTMLInputElement>("#search")!,
   outcome: document.querySelector<HTMLSelectElement>("#outcome-filter")!,
-  evidence: document.querySelector<HTMLSelectElement>("#evidence-filter")!,
   list: document.querySelector<HTMLDivElement>("#record-list")!,
-  count: document.querySelector<HTMLElement>("#record-count")!,
   summary: document.querySelector<HTMLElement>("#result-summary")!,
   reviewed: document.querySelector<HTMLElement>("#last-reviewed")!,
   reset: document.querySelector<HTMLButtonElement>("#reset-filters")!,
@@ -100,7 +98,6 @@ function currentFilters() {
   return {
     query: elements.search.value.trim().toLocaleLowerCase("en-IN"),
     outcome: elements.outcome.value,
-    evidence: elements.evidence.value,
   };
 }
 
@@ -109,8 +106,7 @@ function filterRecords(records: RecordItem[]): RecordItem[] {
   return records.filter((record) => {
     const queryMatches = !filters.query || searchableText(record).includes(filters.query);
     const outcomeMatches = filters.outcome === "all" || record.outcome_type === filters.outcome;
-    const evidenceMatches = filters.evidence === "all" || record.evidence_grade === filters.evidence;
-    return queryMatches && outcomeMatches && evidenceMatches;
+    return queryMatches && outcomeMatches;
   });
 }
 
@@ -324,7 +320,7 @@ function applyFilters(): void {
   renderRecords(state.filtered);
   updateMap(state.filtered);
 
-  const active = elements.search.value.trim() || elements.outcome.value !== "all" || elements.evidence.value !== "all";
+  const active = elements.search.value.trim() || elements.outcome.value !== "all";
   elements.reset.hidden = !active;
   elements.summary.textContent = `${state.filtered.length} of ${state.records.length} sourced ${state.records.length === 1 ? "record" : "records"}`;
 
@@ -336,7 +332,6 @@ function applyFilters(): void {
 function clearFilters(): void {
   elements.search.value = "";
   elements.outcome.value = "all";
-  elements.evidence.value = "all";
   applyFilters();
 }
 
@@ -358,7 +353,6 @@ async function boot(): Promise<void> {
     state.records = payload.records;
     state.filtered = payload.records;
 
-    elements.count.textContent = String(payload.meta.count);
     elements.reviewed.textContent = payload.meta.lastReviewed ? `Reviewed ${formatDate(payload.meta.lastReviewed.slice(0, 10))}` : "";
     populateOutcomeFilter(state.records);
 
@@ -369,7 +363,6 @@ async function boot(): Promise<void> {
     initializeMap(state.filtered);
   } catch (error) {
     console.error(error);
-    elements.count.textContent = "0";
     elements.summary.textContent = "Records are temporarily unavailable.";
     elements.empty.hidden = false;
     elements.empty.querySelector("p")!.textContent = "The sourced record index could not be loaded. Please try again shortly.";
@@ -378,7 +371,7 @@ async function boot(): Promise<void> {
   }
 }
 
-for (const element of [elements.search, elements.outcome, elements.evidence]) {
+for (const element of [elements.search, elements.outcome]) {
   element.addEventListener("input", applyFilters);
 }
 elements.reset.addEventListener("click", clearFilters);

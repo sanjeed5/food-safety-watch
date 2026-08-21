@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="A sourced map of publicly reported food-safety inspection events in Bengaluru." />
-    <meta name="theme-color" content="#f4f1e8" />
+    <meta name="theme-color" content="#f7f7f4" />
     <meta property="og:title" content="Food Safety Watch Bengaluru" />
     <meta property="og:description" content="Dated inspection evidence with a source on every record." />
     <title>Food Safety Watch Bengaluru</title>
@@ -13,107 +13,61 @@
     <a class="skip-link" href="#records">Skip to inspection records</a>
     <header class="site-header">
       <a class="brand" href="/" aria-label="Food Safety Watch home">
-        <span class="brand-mark" aria-hidden="true">FS</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
         <span>Food Safety Watch</span>
       </a>
-      <a class="method-link" href="#methodology">How records are verified</a>
+      <p>Dated reports, not current ratings</p>
+      <a class="about-link" href="/about">About &amp; methodology</a>
     </header>
 
-    <main>
-      <section class="hero" aria-labelledby="page-title">
-        <div class="hero-copy">
-          <p class="eyebrow">Bengaluru public-interest index</p>
-          <h1 id="page-title">Food inspections,<br /><em>with receipts.</em></h1>
-          <p class="intro">
-            A searchable map of dated food-safety inspection events. Every published record links to the reporting or official source behind it.
-          </p>
-          <div class="principle">
-            <span class="principle-icon" aria-hidden="true">i</span>
-            <p><strong>Not a permanent blacklist.</strong> Records describe what was reported at the time of inspection, not an establishment's current condition.</p>
-          </div>
-        </div>
-        <div class="hero-stat" aria-live="polite">
-          <span class="stat-number" id="record-count">...</span>
-          <span class="stat-label">sourced records<br />currently published</span>
-        </div>
-      </section>
-
-      <section class="explorer" aria-label="Inspection explorer">
-        <div class="controls">
-          <label class="search-field">
-            <span class="visually-hidden">Search records</span>
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.3-4.3m2.3-5.2a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" /></svg>
-            <input id="search" type="search" placeholder="Search outlet, locality, finding..." autocomplete="off" />
-          </label>
-          <label class="select-field">
-            <span>Action</span>
-            <select id="outcome-filter">
-              <option value="all">All actions</option>
-            </select>
-          </label>
-          <label class="select-field">
-            <span>Evidence</span>
-            <select id="evidence-filter">
-              <option value="all">All sourced records</option>
-              <option value="official">Official source</option>
-              <option value="reported">Reputable reporting</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="result-bar">
+    <main class="explorer" aria-label="Bengaluru food inspection explorer">
+      <div class="controls">
+        <label class="search-field">
+          <span class="visually-hidden">Search inspection records</span>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.3-4.3m2.3-5.2a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" /></svg>
+          <input id="search" type="search" placeholder="Search outlet, locality or finding" autocomplete="off" />
+        </label>
+        <label class="select-field">
+          <span class="visually-hidden">Filter by action</span>
+          <select id="outcome-filter">
+            <option value="all">All actions</option>
+          </select>
+        </label>
+        <div class="result-tools">
           <p id="result-summary" aria-live="polite">Loading records...</p>
-          <button id="reset-filters" class="text-button" type="button" hidden>Clear filters</button>
+          <button id="reset-filters" class="text-button" type="button" hidden>Clear</button>
         </div>
+      </div>
 
-        <div class="explorer-grid">
-          <div class="map-shell">
-            <div id="map" role="region" aria-label="Map of sourced inspection events"></div>
-            <p id="map-fallback" class="map-fallback" hidden>The map could not load. Every record remains available in the list.</p>
-            <div class="map-key" aria-hidden="true">
-              <span><i class="dot dot-notice"></i> Notice</span>
-              <span><i class="dot dot-seizure"></i> Seizure</span>
-              <span><i class="dot dot-inspection"></i> Inspection</span>
-            </div>
+      <div class="explorer-grid">
+        <div class="map-shell">
+          <div id="map" role="region" aria-label="Map of sourced inspection events"></div>
+          <p id="map-fallback" class="map-fallback" hidden>The map could not load. Every record remains available in the list.</p>
+          <div class="map-key" aria-hidden="true">
+            <span><i class="dot dot-notice"></i> Notice</span>
+            <span><i class="dot dot-seizure"></i> Seizure</span>
+            <span><i class="dot dot-closure"></i> Closure</span>
           </div>
-
-          <section id="records" class="records" aria-labelledby="records-title">
-            <div class="records-heading">
-              <h2 id="records-title">Inspection records</h2>
-              <span id="last-reviewed"></span>
-            </div>
-            <div id="record-list" class="record-list"></div>
-            <div id="empty-state" class="empty-state" hidden>
-              <p>No sourced records match those filters.</p>
-              <button class="secondary-button" type="button">Clear filters</button>
-            </div>
-          </section>
         </div>
-      </section>
 
-      <section id="methodology" class="methodology" aria-labelledby="method-title">
-        <div>
-          <p class="eyebrow">Publication standard</p>
-          <h2 id="method-title">Evidence before accusation.</h2>
-        </div>
-        <ol class="method-list">
-          <li><span>01</span><div><h3>Identify the exact outlet</h3><p>A chain name without a verifiable branch or location stays unpublished.</p></div></li>
-          <li><span>02</span><div><h3>Use attributable sources</h3><p>Official material is preferred. Reputable reporting must name the outlet and attribute the finding.</p></div></li>
-          <li><span>03</span><div><h3>Keep findings dated</h3><p>Inspection findings are presented as historical events, never as permanent labels.</p></div></li>
-          <li><span>04</span><div><h3>Leave a correction trail</h3><p>Later responses or orders can update status while the original source remains visible.</p></div></li>
-        </ol>
-      </section>
+        <section id="records" class="records" aria-labelledby="records-title">
+          <div class="records-heading">
+            <h1 id="records-title">Bengaluru inspection records</h1>
+            <span id="last-reviewed"></span>
+          </div>
+          <div id="record-list" class="record-list"></div>
+          <div id="empty-state" class="empty-state" hidden>
+            <p>No sourced records match those filters.</p>
+            <button class="secondary-button" type="button">Clear filters</button>
+          </div>
+        </section>
+      </div>
     </main>
-
-    <footer>
-      <p>An independent public-interest project. Not affiliated with FSSAI or Karnataka FSDA.</p>
-      <div><a href="mailto:hi@sanjeed.in?subject=Food%20Safety%20Watch%20correction">Request a correction</a><a href="https://github.com/sanjeed5/food-safety-watch" rel="noreferrer">View source code</a></div>
-    </footer>
 
     <template id="record-template">
       <article class="record-card">
         <div class="record-topline"><span class="record-date"></span><span class="evidence-badge"></span></div>
-        <h3 class="record-name"></h3>
+        <h2 class="record-name"></h2>
         <p class="record-location"></p>
         <dl>
           <div><dt>Reported finding</dt><dd class="record-finding"></dd></div>
