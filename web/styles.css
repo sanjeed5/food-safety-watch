@@ -51,8 +51,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .map-key { position: absolute; left: .75rem; top: .75rem; z-index: 2; display: flex; gap: .75rem; flex-wrap: wrap; padding: .55rem .7rem; border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.94); box-shadow: 0 4px 16px rgba(23,32,29,.1); font-size: .66rem; }
 .dot { display: inline-block; width: 8px; height: 8px; margin-right: .25rem; border-radius: 50%; }
 .dot-notice { background: var(--orange); }.dot-seizure { background: var(--red); }.dot-closure { background: #67251f; }
+.map-loading { position: absolute; z-index: 3; inset: 50% auto auto 50%; margin: 0; padding: .6rem .75rem; transform: translate(-50%, -50%); border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.94); color: var(--muted); font-size: .75rem; }
 .map-fallback { position: absolute; z-index: 3; inset: .75rem .75rem auto; margin: 0; padding: .85rem; border: 1px solid var(--red); background: var(--surface); font-size: .8rem; }
-.map-unavailable #map, .map-unavailable .map-key { display: none; }
+.map-unavailable #map, .map-unavailable .map-key, .map-unavailable .map-loading { display: none; }
 
 .records { min-width: 0; overflow-y: auto; background: var(--surface); }
 .records-heading { position: sticky; top: 0; z-index: 2; display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .9rem 1rem; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.96); }

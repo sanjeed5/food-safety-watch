@@ -68,6 +68,7 @@ const elements = {
   reviewed: document.querySelector<HTMLElement>("#last-reviewed")!,
   reset: document.querySelector<HTMLButtonElement>("#reset-filters")!,
   empty: document.querySelector<HTMLElement>("#empty-state")!,
+  mapLoading: document.querySelector<HTMLElement>("#map-loading")!,
   mapFallback: document.querySelector<HTMLElement>("#map-fallback")!,
   template: document.querySelector<HTMLTemplateElement>("#record-template")!,
 };
@@ -220,6 +221,12 @@ function updateMap(records: RecordItem[]): void {
 }
 
 function initializeMap(records: RecordItem[]): void {
+  let mapSettled = false;
+  const settleTimeout = window.setTimeout(() => {
+    if (mapSettled) return;
+    elements.mapLoading.hidden = true;
+    elements.mapFallback.hidden = false;
+  }, 15_000);
   let map: maplibregl.Map;
   try {
     map = new maplibregl.Map({
@@ -229,7 +236,9 @@ function initializeMap(records: RecordItem[]): void {
       zoom: 10.4,
     });
   } catch (error) {
+    window.clearTimeout(settleTimeout);
     console.error("Map initialization failed", error);
+    elements.mapLoading.hidden = true;
     elements.mapFallback.hidden = false;
     document.querySelector<HTMLElement>(".map-shell")?.classList.add("map-unavailable");
     return;
@@ -263,7 +272,11 @@ function initializeMap(records: RecordItem[]): void {
       type: "symbol",
       source: "inspections",
       filter: ["has", "point_count"],
-      layout: { "text-field": ["get", "point_count_abbreviated"], "text-size": 12 },
+      layout: {
+        "text-field": ["get", "point_count_abbreviated"],
+        "text-font": ["Noto Sans Regular"],
+        "text-size": 12,
+      },
       paint: { "text-color": "#ffffff" },
     });
     map.addLayer({
@@ -307,6 +320,13 @@ function initializeMap(records: RecordItem[]): void {
       map.on("mouseenter", layer, () => { map.getCanvas().style.cursor = "pointer"; });
       map.on("mouseleave", layer, () => { map.getCanvas().style.cursor = ""; });
     }
+  });
+
+  map.on("idle", () => {
+    mapSettled = true;
+    window.clearTimeout(settleTimeout);
+    elements.mapLoading.hidden = true;
+    elements.mapFallback.hidden = true;
   });
 
   map.on("error", (event) => {
