@@ -16,7 +16,7 @@ The deployed main page loads, but the map does not. The list and API remain avai
 
 ## Strongest diagnosis
 
-The site used `maplibre-gl` 6.4.1. MapLibre 6 removed WebGL1 support and requires WebGL2. The likely failing surface is Telegram's in-app browser or another browser/device where WebGL2 is unavailable or restricted.
+The site used `maplibre-gl` 6.4.1. MapLibre 6 removed WebGL1 support and requires WebGL2. This remains the leading compatibility hypothesis, but Sanjeed confirmed the failure in **Brave**, not an embedded Telegram browser. Do not treat the browser surface as settled: reproduce in Brave and check WebGL availability, Brave Shields, console errors, and blocked OpenFreeMap requests.
 
 Evidence:
 
@@ -94,7 +94,7 @@ pnpm wrangler deploy
 
 5. Verify live root, API, map behavior, and `/about`. Then push any follow-up commit.
 
-6. Ask Sanjeed to refresh the Telegram in-app browser and confirm the map loads. If it still fails, capture the device/browser and implement a non-WebGL fallback instead of guessing.
+6. Ask Sanjeed to refresh Brave and confirm the map loads. If it still fails, capture the Brave console/network failure and relevant Shields/WebGL state before choosing a non-WebGL fallback.
 
 ## Process state
 
