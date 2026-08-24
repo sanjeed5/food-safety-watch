@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "deploy": "pnpm build && wrangler deploy",
+    "deploy": "pnpm build && wrangler deploy --old-asset-ttl=86400",
     "dev": "pnpm build && wrangler dev",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -13,7 +13,7 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "maplibre-gl": "^5.24.0"
+    "maplibre-gl": "^6.5.0"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.21.0",

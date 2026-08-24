@@ -1,7 +1,10 @@
 import * as maplibregl from "maplibre-gl";
 import type { GeoJSONSource } from "maplibre-gl";
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./styles.css";
+
+maplibregl.setWorkerUrl(workerUrl);
 
 type Outcome = "inspection" | "notice" | "seizure" | "closure" | "satisfactory";
 type EvidenceGrade = "official" | "reported";
