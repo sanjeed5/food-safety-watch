@@ -1,101 +1,52 @@
-# Handoff: map does not load
+# Handoff: MapLibre 6.5 Brave verification
 
-Updated: 2026-08-23 18:45 IST
+Updated: 2026-08-24 14:48 IST
 
-## User report
-
-The deployed main page loads, but the map does not. The list and API remain available.
-
-## Repository and deployment
+## Current state
 
 - Repository: `https://github.com/sanjeed5/food-safety-watch`
 - Local path: `/home/ubuntu/repos/food-safety-watch`
 - Branch: `main`
 - Live Worker: `https://food-safety-watch.sanjeed5.workers.dev`
-- Live deployment still uses the last committed MapLibre 6 build. The compatibility changes in this handoff are committed but **not deployed**.
+- Live Worker version: `d5c6f234-1bbc-4383-a863-3d4cf213050c`
 
-## Strongest diagnosis
+## Root cause captured in Brave
 
-The site used `maplibre-gl` 6.4.1. MapLibre 6 removed WebGL1 support and requires WebGL2. This remains the leading compatibility hypothesis, but Sanjeed confirmed the failure in **Brave**, not an embedded Telegram browser. Do not treat the browser surface as settled: reproduce in Brave and check WebGL availability, Brave Shields, console errors, and blocked OpenFreeMap requests.
+The reported Brave console error was:
 
-Evidence:
+> Failed to load module script: The server responded with a non-JavaScript MIME type of “text/html”.
 
-- MapLibre changelog: <https://github.com/maplibre/maplibre-gl-js/blob/main/CHANGELOG.md> states that v6 removed WebGL1 support and requires WebGL2.
-- OpenFreeMap's current quick-start examples explicitly load `maplibre-gl@5`: <https://openfreemap.org/quick_start/>
-- The deployed HTML, API, and OpenFreeMap style endpoints each returned HTTP 200 during debugging.
+This was not a WebGL error. Brave had requested a stale hashed JavaScript asset from the previous deployment. Because Workers Static Assets used `not_found_handling: "single-page-application"`, the missing `.js` request was rewritten to `index.html` and returned as `200 text/html`; strict module MIME checking correctly rejected it.
 
-## Changes committed in this WIP
+## Fix
 
-- Downgraded `maplibre-gl` from 6.4.1 to 5.24.0 to restore WebGL1 fallback.
-- Added an explicit `Noto Sans Regular` font to the cluster-count layer. This avoids MapLibre's default request for an unavailable composite OpenFreeMap font URL.
-- Added a visible `Loading map…` state.
-- Added a 15-second failure state while preserving the accessible record list.
-- Added `idle` handling to clear loading/failure UI once the map settles.
+`wrangler.jsonc` now uses:
 
-Files changed:
-
-- `package.json`
-- `pnpm-lock.yaml`
-- `web/app.ts`
-- `web/index.html`
-- `web/styles.css`
-
-## Local findings
-
-After downgrading to MapLibre 5.24.0, this command passed before the final loading/fallback UI patch:
-
-```bash
-pnpm typecheck && pnpm test && pnpm build
+```json
+"not_found_handling": "none"
 ```
 
-Result: 3 tests passed; production build succeeded.
+Verified RED→GREEN locally and live:
 
-A local Chromium CDP run with WebGL2 explicitly disabled showed:
+- Before: missing `/assets/*.js` returned `200 text/html`.
+- After: missing `/assets/*.js` returns `404`.
+- Current hashed JavaScript returns `200 text/javascript`.
+- `/about` remains `200 text/html`.
+- `/api/inspections` remains `200` with seven records.
 
-- Correct page title.
-- One map canvas and one MapLibre control container.
-- Seven rendered record cards.
-- OpenFreeMap style, sprites, and planet TileJSON returned 200.
-- The only observed OpenFreeMap 404 was the default `Open Sans Regular,Arial Unicode MS Regular` glyph request. The committed explicit Noto font patch is intended to remove it.
+A hard refresh is still required for a browser holding old HTML to fetch the current asset URL. For future deployments, consider using Wrangler's `--old-asset-ttl=<seconds>` deploy flag to retain previous hashed assets briefly for active tabs.
 
-A headless screenshot still showed a blank map canvas. Headless SwiftShader/WebGL capture on this VPS is unreliable, so this is not sufficient proof that a real browser still fails. Do not deploy until the final patch is retested.
+## MapLibre state
 
-## Required next steps
+The live Worker currently uses `maplibre-gl` 6.5.0 for direct Brave testing. The upgrade remains intentionally uncommitted pending confirmation:
 
-1. Run the final checks because the loading/fallback patch was added after the last green run:
+- `package.json` modified
+- `pnpm-lock.yaml` modified
 
-```bash
-pnpm typecheck
-pnpm test
-pnpm build
-```
+Checks passed with MapLibre 6.5.0:
 
-2. Start local Cloudflare development:
+- Typecheck passed.
+- 3/3 tests passed.
+- Production build and Wrangler dry-run passed.
 
-```bash
-pnpm wrangler dev
-```
-
-3. Test `http://localhost:8787` in a browser with WebGL2 disabled. Confirm:
-   - Base-map roads and labels render.
-   - Inspection markers render.
-   - No OpenFreeMap glyph 404 remains.
-   - `Loading map…` disappears after map idle.
-   - The failure message appears after 15 seconds if the map cannot settle.
-
-4. If the MapLibre 5/WebGL1 path works, deploy:
-
-```bash
-set -a
-. /home/ubuntu/.hermes/secrets/cloudflare-account.env
-set +a
-pnpm wrangler deploy
-```
-
-5. Verify live root, API, map behavior, and `/about`. Then push any follow-up commit.
-
-6. Ask Sanjeed to refresh Brave and confirm the map loads. If it still fails, capture the Brave console/network failure and relevant Shields/WebGL state before choosing a non-WebGL fallback.
-
-## Process state
-
-The local Wrangler server and local Chromium debug process used during this investigation were stopped before handoff.
+The previous WebGL2 incompatibility explanation is no longer supported by the captured Brave error. Keep MapLibre 6.5.0 if the map renders after a hard refresh; otherwise capture any new console/network failure before changing versions.
