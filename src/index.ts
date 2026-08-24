@@ -38,6 +38,14 @@ const jsonHeaders = {
   "referrer-policy": "strict-origin-when-cross-origin",
 };
 
+const assetSecurityHeaders = {
+  "content-security-policy": "default-src 'self'; connect-src 'self' https://tiles.openfreemap.org; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+  "permissions-policy": "camera=(), microphone=(), geolocation=()",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "x-content-type-options": "nosniff",
+  "x-frame-options": "DENY",
+};
+
 function json(data: unknown, init: ResponseInit = {}): Response {
   return Response.json(data, {
     ...init,
@@ -104,7 +112,13 @@ async function listInspections(env: Env): Promise<Response> {
 
   const records = events
     .map((event) => ({ ...event, sources: sourcesByEvent.get(event.id) ?? [] }))
-    .filter((event) => event.sources.length > 0);
+    .filter((event) => {
+      const hasOfficialSource = event.sources.some((source) => source.source_type === "official");
+      const independentNewsPublishers = new Set(
+        event.sources.filter((source) => source.source_type === "news").map((source) => source.publisher),
+      );
+      return hasOfficialSource || independentNewsPublishers.size >= 2;
+    });
 
   const lastReviewed = records.reduce(
     (latest, record) => (record.reviewed_at > latest ? record.reviewed_at : latest),
@@ -118,7 +132,7 @@ async function listInspections(env: Env): Promise<Response> {
         count: records.length,
         lastReviewed: lastReviewed || null,
         geography: "Bengaluru",
-        methodology: "Every published record has at least one named source.",
+        methodology: "Every published record has an official source or two independent reputable news publishers.",
       },
     },
     {
@@ -134,7 +148,30 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname === "/api/health") {
-      return json({ status: "ok", service: "food-safety-watch" });
+      try {
+        const readiness = await env.DB.prepare(`
+          SELECT COUNT(*) AS published_records, MAX(reviewed_at) AS last_reviewed
+          FROM inspection_events
+          WHERE is_published = 1
+        `).first<{ published_records: number; last_reviewed: string | null }>();
+        return json(
+          {
+            status: "ready",
+            service: "food-safety-watch",
+            database: {
+              publishedRecords: readiness?.published_records ?? 0,
+              lastReviewed: readiness?.last_reviewed ?? null,
+            },
+          },
+          { headers: { "cache-control": "no-store" } },
+        );
+      } catch (error) {
+        console.error("Readiness check failed", error);
+        return json(
+          { status: "not_ready", service: "food-safety-watch" },
+          { status: 503, headers: { "cache-control": "no-store" } },
+        );
+      }
     }
 
     if (url.pathname === "/api/inspections") {
@@ -160,6 +197,13 @@ export default {
       return json({ error: "Not found" }, { status: 404 });
     }
 
-    return env.ASSETS.fetch(request);
+    const assetResponse = await env.ASSETS.fetch(request);
+    const headers = new Headers(assetResponse.headers);
+    for (const [name, value] of Object.entries(assetSecurityHeaders)) headers.set(name, value);
+    return new Response(assetResponse.body, {
+      status: assetResponse.status,
+      statusText: assetResponse.statusText,
+      headers,
+    });
   },
 } satisfies ExportedHandler<Env>;

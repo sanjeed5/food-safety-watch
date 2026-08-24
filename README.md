@@ -6,6 +6,7 @@ A sourced, searchable map of publicly reported food-safety inspection events in 
 
 - Accuracy is the launch-blocking requirement. Never publish an adverse claim until the exact outlet, dated event, wording, and supporting evidence have been manually verified.
 - Automated or AI-assisted intake may suggest drafts but must never publish records automatically.
+- Each adverse record needs an official source or corroboration from two independent reputable news publishers.
 - Every published record names its source.
 - Records describe dated findings and actions, not a business's permanent or current safety status.
 - Exact outlet identity is required. Ambiguous chain-level mentions stay unpublished.
@@ -40,4 +41,4 @@ pnpm deploy
 
 ## Data updates
 
-Add reviewed records through a numbered SQL migration. Keep `is_published = 0` until the outlet identity, wording, coordinates, and source link have been checked.
+Add reviewed records through a numbered SQL migration. Keep `is_published = 0` until the outlet identity, wording, coordinates, source links, and official-or-two-publishers evidence gate have been checked by a person.

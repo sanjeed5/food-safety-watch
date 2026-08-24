@@ -5,8 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="A sourced map of publicly reported food-safety inspection events in Bengaluru." />
     <meta name="theme-color" content="#f7f7f4" />
+    <link rel="canonical" href="https://food-safety-watch.sanjeed5.workers.dev/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin />
     <meta property="og:title" content="Food Safety Watch Bengaluru" />
     <meta property="og:description" content="Dated inspection evidence with a source on every record." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://food-safety-watch.sanjeed5.workers.dev/" />
+    <meta property="og:image" content="https://food-safety-watch.sanjeed5.workers.dev/social-card.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Food Safety Watch Bengaluru" />
+    <meta name="twitter:description" content="Dated inspection evidence with a source on every record." />
+    <meta name="twitter:image" content="https://food-safety-watch.sanjeed5.workers.dev/social-card.png" />
     <title>Food Safety Watch Bengaluru</title>
   </head>
   <body>
@@ -19,6 +29,8 @@
       <p>Dated reports, not current ratings</p>
       <a class="about-link" href="/about">About &amp; methodology</a>
     </header>
+
+    <p class="risk-note"><strong>Historical, source-linked reports only.</strong> Not current ratings or a complete list. Read the dated sources and latest status. <a href="/about">Methodology</a></p>
 
     <main class="explorer" aria-label="Bengaluru food inspection explorer">
       <div class="controls">
@@ -42,10 +54,12 @@
       <div class="explorer-grid">
         <div class="map-shell">
           <div id="map" role="region" aria-label="Map of sourced inspection events"></div>
-          <p id="map-loading" class="map-loading">Loading map…</p>
-          <p id="map-fallback" class="map-fallback" hidden>The map could not load. Every record remains available in the list.</p>
+          <p id="map-loading" class="map-loading" role="status">Loading map…</p>
+          <div id="map-fallback" class="map-fallback" role="alert" hidden>
+            <p>The map could not load. Every record remains available in the list.</p>
+            <button id="retry-map" class="secondary-button" type="button">Retry map</button>
+          </div>
           <div class="map-key" aria-hidden="true">
-            <span><i class="dot dot-notice"></i> Notice</span>
             <span><i class="dot dot-seizure"></i> Seizure</span>
             <span><i class="dot dot-closure"></i> Closure</span>
           </div>
@@ -53,7 +67,7 @@
 
         <section id="records" class="records" aria-labelledby="records-title">
           <div class="records-heading">
-            <h1 id="records-title">Bengaluru inspection records</h1>
+            <h1 id="records-title">Sourced reports of inspections</h1>
             <span id="last-reviewed"></span>
           </div>
           <div id="record-list" class="record-list"></div>
@@ -76,9 +90,14 @@
           <div><dt>Latest sourced status</dt><dd class="record-status"></dd></div>
         </dl>
         <div class="record-sources"></div>
-        <button class="locate-button" type="button">Show on map</button>
+        <div class="record-actions">
+          <button class="locate-button" type="button" disabled>Map loading</button>
+          <a class="correction-link" target="_blank" rel="noopener noreferrer">Report an error or update ↗</a>
+        </div>
       </article>
     </template>
+
+    <p id="interaction-status" class="visually-hidden" aria-live="polite"></p>
 
     <script type="module" src="/app.ts"></script>
   </body>
